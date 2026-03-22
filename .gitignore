@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+npm-debug.log*
+
+# .NET
+bin/
+obj/
+appsettings.json
+appsettings.Development.json
+
+# Local Uploads
+wwwroot/uploads/
+wwwroot/contracts/
+
+# React Environment Variables
+frontend/.env
+frontend/.env.local
+.env
+
+# OS tools
+.DS_Store
+Thumbs.db
+.vscode/
