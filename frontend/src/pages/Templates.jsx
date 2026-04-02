@@ -7,6 +7,7 @@ export default function Templates() {
   const [templates, setTemplates] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     requireIntake: true,
@@ -32,6 +33,7 @@ export default function Templates() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const url = editingId 
       ? `http://localhost:5000/api/templates/${editingId}`
       : 'http://localhost:5000/api/templates';
@@ -45,6 +47,7 @@ export default function Templates() {
       body: JSON.stringify(formData)
     });
 
+    setLoading(false);
     if (res.ok) {
       setIsModalOpen(false);
       setEditingId(null);
@@ -113,50 +116,50 @@ export default function Templates() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">{editingId ? 'Edit Template' : 'Create Template'}</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>{editingId ? 'Edit Template' : 'Create Template'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4 text-left">
               <div>
-                <label className="block text-sm font-medium">Template Name</label>
-                <input required type="text" className="mt-1 block w-full border border-gray-300 rounded p-2" 
-                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                <label>Template Name</label>
+                <input required type="text"
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Website Redesign" />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.requireIntake} onChange={e => setFormData({...formData, requireIntake: e.target.checked})} />
-                  Require Intake
+              <div className="checkbox-group">
+                <label className={`checkbox-item ${formData.requireIntake ? 'checked' : ''}`}>
+                  <input type="checkbox" className="hidden" checked={formData.requireIntake} onChange={e => setFormData({...formData, requireIntake: e.target.checked})} />
+                  Intake Form
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.requireFileUpload} onChange={e => setFormData({...formData, requireFileUpload: e.target.checked})} />
-                  Require Files
+                <label className={`checkbox-item ${formData.requireFileUpload ? 'checked' : ''}`}>
+                  <input type="checkbox" className="hidden" checked={formData.requireFileUpload} onChange={e => setFormData({...formData, requireFileUpload: e.target.checked})} />
+                  File Uploads
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.requireContract} onChange={e => setFormData({...formData, requireContract: e.target.checked})} />
-                  Require Contract
+                <label className={`checkbox-item ${formData.requireContract ? 'checked' : ''}`}>
+                  <input type="checkbox" className="hidden" checked={formData.requireContract} onChange={e => setFormData({...formData, requireContract: e.target.checked})} />
+                  Contract
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.requirePayment} onChange={e => setFormData({...formData, requirePayment: e.target.checked})} />
-                  Require Payment
+                <label className={`checkbox-item ${formData.requirePayment ? 'checked' : ''}`}>
+                  <input type="checkbox" className="hidden" checked={formData.requirePayment} onChange={e => setFormData({...formData, requirePayment: e.target.checked})} />
+                  Payment
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.requireBooking} onChange={e => setFormData({...formData, requireBooking: e.target.checked})} />
-                  Require Booking
+                <label className={`checkbox-item ${formData.requireBooking ? 'checked' : ''}`}>
+                  <input type="checkbox" className="hidden" checked={formData.requireBooking} onChange={e => setFormData({...formData, requireBooking: e.target.checked})} />
+                  Booking
                 </label>
               </div>
 
               {formData.requirePayment && (
                 <div>
-                  <label className="block text-sm font-medium">Payment Amount ($)</label>
-                  <input type="number" min="0" step="0.01" className="mt-1 block w-full border border-gray-300 rounded p-2" 
+                  <label>Payment Amount ($)</label>
+                  <input type="number" min="0" step="0.01"
                     value={formData.paymentAmount || 0} onChange={e => setFormData({...formData, paymentAmount: parseFloat(e.target.value)})} />
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 mt-6">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 border rounded hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+              <div className="flex justify-end gap-3 mt-8">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 font-medium border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+                <button type="submit" disabled={loading} className={`btn-primary ${loading ? 'btn-loading' : ''}`}>{loading ? 'Saving...' : 'Save Template'}</button>
               </div>
             </form>
           </div>

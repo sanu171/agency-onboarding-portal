@@ -40,7 +40,7 @@ export default function ContractViewer() {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Step 3: Review & Sign Contract</h2>
       <p className="text-gray-600 mb-6">Please review the agreement below carefully before signing.</p>
       
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 h-64 overflow-y-auto whitespace-pre-wrap text-sm text-gray-700 shadow-inner">
+      <div className="contract-box whitespace-pre-wrap">
         {contractText}
       </div>
 
@@ -62,6 +62,16 @@ export default function ContractViewer() {
               onChange={(e) => setSignature(e.target.value)}
             />
           </div>
+          {signature.trim() && (
+            <div className="signature-preview">
+              <span className="signature-text">{signature}</span>
+              <span className="signature-meta">
+                Signed on {new Date().toLocaleDateString('en-US', {
+                  day: 'numeric', month: 'long', year: 'numeric'
+                })}
+              </span>
+            </div>
+          )}
         </div>
 
         <p className="text-xs text-gray-500 mb-6">
@@ -69,11 +79,11 @@ export default function ContractViewer() {
           validity as a physical signature.
         </p>
         
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4">
           <button
             type="submit"
             disabled={loading || !signature.trim()}
-            className="bg-blue-600 text-white font-medium px-6 py-2 rounded shadow hover:bg-blue-700 disabled:opacity-50"
+            className={`btn-sign ${loading ? 'btn-loading' : ''}`}
           >
             {loading ? 'Processing...' : 'Sign & Continue'}
           </button>

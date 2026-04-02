@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { useOnboarding } from '../context/OnboardingContext';
 
+const PersonalityTag = ({ label, selected, onToggle }) => (
+  <button
+    onClick={() => onToggle(label)}
+    className={`personality-tag ${selected ? 'selected' : ''}`}
+    type="button"
+  >
+    {selected && <span>✓ </span>}
+    {label}
+  </button>
+);
+
 export default function IntakeForm() {
   const { sessionData, updateStep } = useOnboarding();
   const [formData, setFormData] = useState({
@@ -105,18 +116,15 @@ export default function IntakeForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Brand Personality</label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <label>Brand Personality</label>
+          <div className="personality-grid">
             {personalities.map(p => (
-              <label key={p} className={`flex items-center gap-2 p-3 border rounded cursor-pointer transition-colors ${formData.brandPersonality.includes(p) ? 'bg-blue-50 border-blue-400' : 'hover:bg-gray-50'}`}>
-                <input 
-                  type="checkbox" 
-                  checked={formData.brandPersonality.includes(p)}
-                  onChange={() => togglePersonality(p)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">{p}</span>
-              </label>
+              <PersonalityTag 
+                key={p} 
+                label={p} 
+                selected={formData.brandPersonality.includes(p)} 
+                onToggle={togglePersonality} 
+              />
             ))}
           </div>
         </div>
@@ -185,7 +193,7 @@ export default function IntakeForm() {
           <button 
             type="submit" 
             disabled={loading}
-            className="bg-blue-600 text-white font-medium px-8 py-3 rounded-lg shadow hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+            className={`btn-primary ${loading ? 'btn-loading' : ''}`}
           >
             {loading ? 'Saving...' : 'Save & Continue'}
           </button>

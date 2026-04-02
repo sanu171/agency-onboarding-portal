@@ -1,50 +1,55 @@
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Templates from './Templates';
 import Overview from './Overview';
 import ClientDetail from './ClientDetail';
 import Settings from './Settings';
-import { LayoutDashboard, FileText, Link as LinkIcon, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, FileText, LogOut, Settings as SettingsIcon } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const navs = [
+    { path: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { path: '/dashboard/templates', label: 'Templates', icon: FileText },
+    { path: '/dashboard/settings', label: 'Settings', icon: SettingsIcon },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-800 break-words">{user?.agencyName}</h2>
-          <p className="text-sm text-gray-500">Agency Portal</p>
+    <div className="min-h-screen">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <h2>{user?.agencyName || 'Agency'}</h2>
+          <p>Agency Portal</p>
         </div>
-        <nav className="p-4 space-y-2">
-          <Link to="/dashboard" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded">
-            <LayoutDashboard size={20} />
-            Overview
-          </Link>
-          <Link to="/dashboard/templates" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded">
-            <FileText size={20} />
-            Templates
-          </Link>
-          <Link to="/dashboard/settings" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded">
-            <SettingsIcon size={20} />
-            Settings
-          </Link>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded mt-auto">
-            <LogOut size={20} />
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {navs.map(n => {
+            const Icon = n.icon;
+            // Exact match for overview, prefix match for others (like /dashboard/client/:id highlights overview)
+            const isActive = location.pathname === n.path || (n.path === '/dashboard' && location.pathname.startsWith('/dashboard/client/')) || (n.path !== '/dashboard' && location.pathname.startsWith(n.path));
+            return (
+              <Link key={n.path} to={n.path} className={`sidebar-nav-item ${isActive ? 'active' : ''}`}>
+                <Icon size={18} />
+                {n.label}
+              </Link>
+            );
+          })}
+          
+          <button onClick={handleLogout} className="sidebar-nav-item sidebar-logout">
+            <LogOut size={18} />
             Logout
           </button>
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main style={{ marginLeft: '240px', padding: '32px' }}>
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/templates" element={<Templates />} />

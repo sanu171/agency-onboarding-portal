@@ -6,12 +6,14 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ClientPortal from './pages/ClientPortal';
 import { OnboardingProvider } from './context/OnboardingContext';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
+    <ToastProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -28,9 +30,10 @@ function App() {
               </ProtectedRoute>
             } 
           />
-        </Routes>
-      </Router>
-    </AuthProvider>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

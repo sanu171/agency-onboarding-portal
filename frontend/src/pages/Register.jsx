@@ -8,11 +8,13 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -26,7 +28,13 @@ export default function Register() {
       login(data);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      if (err.message === 'Failed to fetch' || err.message.includes('NetworkError')) {
+        setError('Cannot connect to server. Ensure the backend is running.');
+      } else {
+        setError(err.message || 'An unexpected error occurred.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,52 +52,47 @@ export default function Register() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-2 rounded">{error}</div>}
+            {error && <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">Agency Name</label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
+              <label>Agency Name</label>
+              <input
+                type="text"
+                required
+                placeholder="Acme Studio"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email address</label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+              <label>Email address</label>
+              <input
+                type="email"
+                required
+                placeholder="admin@acme.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
+              <label>Password</label>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
 
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={loading}
+              className={`btn-primary w-full justify-center py-3 text-base ${loading ? 'btn-loading' : ''}`}
             >
-              Sign Up
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
           <div className="mt-6 text-center text-sm text-gray-600">

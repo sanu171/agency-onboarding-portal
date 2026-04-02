@@ -4,6 +4,64 @@ import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Download, CheckCircle, Clock, Bell } from 'lucide-react';
 
 export default function ClientDetail() {
+  const renderIntakeResponses = (jsonString) => {
+    try {
+      const data = JSON.parse(jsonString);
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 border rounded-xl shadow-sm">
+          {Object.entries(data).map(([key, value]) => {
+            // format key: "businessName" -> "Business Name"
+            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            
+            if (key === 'brandColors' && Array.isArray(value)) {
+              return (
+                <div key={key} className="col-span-1 md:col-span-2">
+                  <span className="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">{formattedKey}</span>
+                  <div className="flex flex-wrap gap-4">
+                    {value.map((color, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-gray-50 border rounded-lg p-2 pr-5 shadow-sm">
+                        <div className="w-8 h-8 rounded shadow-inner border border-gray-200" style={{ backgroundColor: color.hex }}></div>
+                        <div>
+                          <div className="text-xs font-bold text-gray-800">{color.name}</div>
+                          <div className="text-xs text-gray-500 font-mono uppercase">{color.hex}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            if (Array.isArray(value)) {
+              return (
+                <div key={key} className="col-span-1 md:col-span-2 border-t border-gray-100 pt-4 mt-2">
+                  <span className="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">{formattedKey}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {value.map((val, i) => (
+                      <span key={i} className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+                        {val}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div key={key} className={(typeof value === 'string' && value.length > 50) ? "col-span-1 md:col-span-2" : "col-span-1"}>
+                <span className="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">{formattedKey}</span>
+                <div className="bg-gray-50 border border-gray-100 p-3.5 rounded-lg text-gray-800 whitespace-pre-wrap shadow-inner text-sm font-medium">
+                  {value || <span className="text-gray-400 italic font-normal">None provided</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    } catch (e) {
+      return <div className="bg-red-50 text-red-600 p-4 rounded border border-red-200">Error parsing response data.</div>;
+    }
+  };
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -113,9 +171,7 @@ export default function ClientDetail() {
             <div>
               <h3 className="font-semibold text-lg mb-4 text-gray-800">Intake Form Responses</h3>
               {client.intakeForm ? (
-                <div className="bg-gray-50 p-6 rounded border whitespace-pre-wrap font-mono text-sm text-gray-700 shadow-inner">
-                  {client.intakeForm.submittedDataJson}
-                </div>
+                renderIntakeResponses(client.intakeForm.submittedDataJson)
               ) : (
                 <p className="text-gray-500 italic py-8 text-center bg-gray-50 rounded border border-dashed">Intake form not submitted yet.</p>
               )}

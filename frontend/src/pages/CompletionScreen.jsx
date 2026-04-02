@@ -1,34 +1,48 @@
 import { useOnboarding } from '../context/OnboardingContext';
-import { PartyPopper, CheckCircle } from 'lucide-react';
 
 export default function CompletionScreen() {
   const { sessionData } = useOnboarding();
+  const { clientName, agency, template } = sessionData;
+
+  const firstName = clientName ? clientName.split(' ')[0] : 'there';
 
   return (
-    <div className="p-10 flex flex-col items-center justify-center text-center min-h-[500px]">
-      <div className="bg-green-100 text-green-600 p-6 rounded-full mb-6 relative">
-        <PartyPopper size={48} />
-        <CheckCircle size={24} className="absolute bottom-0 right-0 bg-white rounded-full" />
+    <div className="completion-screen">
+      <div className="completion-emoji">🎉</div>
+      <h1>You're all set, {firstName}!</h1>
+      <p>We have everything we need to begin.</p>
+      
+      <div className="completion-list">
+        {template?.requireIntake !== false && (
+          <div className="completion-list-item">
+            <span className="check">✅</span> <span>Brand information received</span>
+          </div>
+        )}
+        {template?.requireFileUpload !== false && (
+          <div className="completion-list-item">
+            <span className="check">✅</span> <span>Files uploaded</span>
+          </div>
+        )}
+        {template?.requireContract !== false && (
+          <div className="completion-list-item">
+            <span className="check">✅</span> <span>Contract signed</span>
+          </div>
+        )}
+        {template?.requirePayment !== false && (
+          <div className="completion-list-item">
+            <span className="check">✅</span> <span>Deposit paid</span>
+          </div>
+        )}
+        {template?.requireBooking !== false && (
+          <div className="completion-list-item">
+            <span className="check">✅</span> <span>Kickoff call booked</span>
+          </div>
+        )}
       </div>
       
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">You're All Set!</h2>
-      <p className="text-lg text-gray-600 mb-8 max-w-md">
-        Thank you for completing the onboarding process. We have received all your information and the {sessionData.agency?.name} team will be in touch shortly.
-      </p>
-      
-      {sessionData.template?.requireBooking && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md w-full mb-8">
-          <h3 className="font-semibold text-blue-800 mb-2">Next Steps</h3>
-          <p className="text-blue-700 text-sm">You will receive an email confirmation with your meeting details.</p>
-        </div>
-      )}
-      
-      <button 
-        onClick={() => window.close()} 
-        className="text-gray-500 hover:text-gray-700 font-medium px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-      >
-        Close Window
-      </button>
+      <div className="completion-contact">
+        Questions? Contact us at <strong>{agency?.email || 'your agency'}</strong>
+      </div>
     </div>
   );
 }
