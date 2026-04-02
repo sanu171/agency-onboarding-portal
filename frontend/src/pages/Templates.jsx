@@ -22,7 +22,7 @@ export default function Templates() {
   }, []);
 
   const fetchTemplates = async () => {
-    const res = await fetch('http://localhost:5000/api/templates', {
+    const res = await fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/templates', {
       headers: { Authorization: `Bearer ${user.token}` }
     });
     if (res.ok) {
@@ -33,8 +33,8 @@ export default function Templates() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingId 
-      ? `http://localhost:5000/api/templates/${editingId}`
-      : 'http://localhost:5000/api/templates';
+      ? `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/templates/${editingId}`
+      : (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/templates';
       
     const res = await fetch(url, {
       method: editingId ? 'PUT' : 'POST',
@@ -54,7 +54,7 @@ export default function Templates() {
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure?')) return;
-    const res = await fetch(`http://localhost:5000/api/templates/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/templates/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${user.token}` }
     });

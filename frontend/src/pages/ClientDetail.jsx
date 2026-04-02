@@ -16,7 +16,7 @@ export default function ClientDetail() {
 
   const fetchClient = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/onboarding/sessions/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/sessions/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       if (res.ok) {
@@ -34,7 +34,7 @@ export default function ClientDetail() {
   const handleSendReminder = async () => {
     if (!window.confirm(`Send an email reminder to ${client.clientEmail}?`)) return;
     
-    const res = await fetch(`http://localhost:5000/api/onboarding/sessions/${id}/remind`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/sessions/${id}/remind`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${user.token}` }
     });
@@ -47,7 +47,7 @@ export default function ClientDetail() {
   };
 
   const downloadZipViaFetch = async () => {
-    const res = await fetch(`http://localhost:5000/api/onboarding/sessions/${id}/files/zip`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/sessions/${id}/files/zip`, {
       headers: { Authorization: `Bearer ${user.token}` }
     });
     if (!res.ok) return alert('Failed to download zip');
@@ -138,7 +138,7 @@ export default function ClientDetail() {
                   {client.uploadedFiles.map(f => (
                     <li key={f.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
                       <span className="font-medium text-gray-700 font-mono text-sm">{f.fileName}</span>
-                      <a href={`http://localhost:5000${f.filePath}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium">View Raw</a>
+                      <a href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}${f.filePath}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium">View Raw</a>
                     </li>
                   ))}
                 </ul>

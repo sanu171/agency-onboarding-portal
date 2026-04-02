@@ -13,7 +13,7 @@ export default function Settings() {
   }, []);
 
   const fetchProfile = async () => {
-    const res = await fetch('http://localhost:5000/api/auth/me', {
+    const res = await fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/auth/me', {
       headers: { Authorization: `Bearer ${user.token}` }
     });
     if (res.ok) {
@@ -32,7 +32,7 @@ export default function Settings() {
     setMessage('');
     
     try {
-      const res = await fetch('http://localhost:5000/api/auth/me', {
+      const res = await fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
         body: JSON.stringify({ name: formData.name, logoUrl: formData.logoUrl, brandColor: formData.brandColor })

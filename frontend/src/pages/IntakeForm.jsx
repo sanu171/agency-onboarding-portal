@@ -46,7 +46,7 @@ export default function IntakeForm() {
     setLoading(true);
     
     try {
-      const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/intake`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/intake`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dataJson: JSON.stringify(formData, null, 2) })

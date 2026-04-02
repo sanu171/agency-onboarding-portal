@@ -35,7 +35,7 @@ export default function FileUpload() {
     });
 
     try {
-      const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/files`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/files`, {
         method: 'POST',
         body: formData,
       });
@@ -54,7 +54,7 @@ export default function FileUpload() {
 
   const handleSkip = async () => {
     // If skipping is allowed
-    const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/files/skip`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/files/skip`, {
       method: 'POST'
     });
     if (res.ok) {

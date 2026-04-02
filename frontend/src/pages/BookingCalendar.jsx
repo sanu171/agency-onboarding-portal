@@ -23,7 +23,7 @@ export default function BookingCalendar() {
     
     try {
       const scheduledCallAt = selectedSlot.date.toISOString(); // In real app, merge date + time
-      const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/booking`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduledCallAt })
