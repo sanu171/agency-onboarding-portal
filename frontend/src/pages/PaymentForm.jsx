@@ -49,13 +49,13 @@ export default function PaymentForm() {
   const [clientSecret, setClientSecret] = useState('');
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/payment/intent`, { method: 'POST' })
+    fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/payment/intent`, { method: 'POST' })
       .then(r => r.json())
       .then(d => setClientSecret(d.clientSecret));
   }, [sessionData.token]);
 
   const handleSuccess = async (paymentIntentId) => {
-    const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/payment/confirm`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/payment/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ paymentIntentId })

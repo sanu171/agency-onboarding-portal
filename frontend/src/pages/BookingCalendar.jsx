@@ -30,7 +30,7 @@ export default function BookingCalendar() {
       const d = new Date(selectedDate);
       d.setHours(selectedSlot.hours, selectedSlot.mins, 0, 0);
       const scheduledCallAt = d.toISOString();
-      const res = await fetch(`http://localhost:5000/api/onboarding/${sessionData.token}/booking`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${sessionData.token}/booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduledCallAt })

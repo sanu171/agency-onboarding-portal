@@ -21,8 +21,8 @@ export default function Overview() {
   const fetchData = async () => {
     const headers = { Authorization: `Bearer ${user.token}` };
     const [sessRes, tempRes] = await Promise.all([
-      fetch('http://localhost:5000/api/onboarding/sessions', { headers }),
-      fetch('http://localhost:5000/api/templates', { headers })
+      fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/onboarding/sessions', { headers }),
+      fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/templates', { headers })
     ]);
     if (sessRes.ok) setSessions(await sessRes.json());
     if (tempRes.ok) {
@@ -35,7 +35,7 @@ export default function Overview() {
   const handleCreate = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch('http://localhost:5000/api/onboarding/session', {
+    const res = await fetch((import.meta.env.VITE_API_BASE_URL || "http://localhost:5000") + '/api/onboarding/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
       body: JSON.stringify(formData)

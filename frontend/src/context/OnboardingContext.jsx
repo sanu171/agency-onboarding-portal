@@ -15,7 +15,7 @@ export const OnboardingProvider = ({ children }) => {
 
   const fetchSession = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/onboarding/${token}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/onboarding/${token}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to load session');
       setSessionData(data);
