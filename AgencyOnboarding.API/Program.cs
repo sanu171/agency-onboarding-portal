@@ -31,9 +31,17 @@ builder.Services.AddCors(options =>
 
 string GetConnectionString()
 {
-    var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL")?.Trim();
     if (string.IsNullOrEmpty(dbUrl))
         return builder.Configuration.GetConnectionString("DefaultConnection")!;
+        
+    // Remove accidental copy-pasted quotes from Render dashboard
+    if (dbUrl.StartsWith("\"") && dbUrl.EndsWith("\""))
+        dbUrl = dbUrl.Substring(1, dbUrl.Length - 2);
+    if (dbUrl.StartsWith("'") && dbUrl.EndsWith("'"))
+        dbUrl = dbUrl.Substring(1, dbUrl.Length - 2);
+    
+    dbUrl = dbUrl.Trim();
         
     if (!dbUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) && 
         !dbUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
