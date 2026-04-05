@@ -23,7 +23,10 @@ builder.Services.AddCors(options =>
 {
     var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
     options.AddPolicy("AllowFrontend",
-        b => b.WithOrigins(frontendUrl)
+        b => b.SetIsOriginAllowed(origin => 
+                  origin == frontendUrl || 
+                  origin.StartsWith("http://localhost:") || 
+                  origin.EndsWith(".vercel.app"))
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
