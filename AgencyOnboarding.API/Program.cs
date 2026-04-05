@@ -35,6 +35,12 @@ string GetConnectionString()
     if (string.IsNullOrEmpty(dbUrl))
         return builder.Configuration.GetConnectionString("DefaultConnection")!;
         
+    if (!dbUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) && 
+        !dbUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        return dbUrl; // It's already a native .NET connection string!
+    }
+        
     var uri = new Uri(dbUrl);
     var userInfo = uri.UserInfo.Split(':');
     var port = uri.Port > 0 ? uri.Port : 5432;
