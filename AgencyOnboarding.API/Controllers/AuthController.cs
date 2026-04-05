@@ -57,7 +57,7 @@ public class AuthController : ControllerBase
     private string GenerateJwtToken(Agency agency)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
-        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "AgencyOnboardingSuperSecretKeyForDevelopmentOnlyPleaseChangeInProduction");
 
         var claims = new[]
         {
@@ -69,8 +69,8 @@ public class AuthController : ControllerBase
         var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: jwtSettings["Issuer"] ?? "AgencyOnboarding.API",
+            audience: jwtSettings["Audience"] ?? "AgencyOnboarding.Frontend",
             claims: claims,
             expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials);
