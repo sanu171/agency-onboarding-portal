@@ -49,7 +49,8 @@ public class OnboardingController : ControllerBase
         _context.OnboardingSessions.Add(session);
         await _context.SaveChangesAsync();
 
-        var link = $"http://localhost:5173/onboard/{session.Token}";
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+        var link = $"{frontendUrl.TrimEnd('/')}/onboard/{session.Token}";
         return Ok(new { token = session.Token, link, expiresAt = session.ExpiresAt });
     }
 
@@ -144,7 +145,8 @@ public class OnboardingController : ControllerBase
 
         if (session == null) return NotFound();
 
-        var link = $"http://localhost:5173/onboard/{session.Token}";
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+        var link = $"{frontendUrl.TrimEnd('/')}/onboard/{session.Token}";
         await emailService.SendEmailAsync(session.ClientEmail, $"Action Required: Progress on your Onboarding with {session.Agency?.Name}", 
             $"Hi {session.ClientName},\n\nPlease complete your next step ({session.CurrentStep}) by visiting your magic link:\n{link}");
 
