@@ -63,13 +63,25 @@ export default function ContractViewer() {
             />
           </div>
           {signature.trim() && (
-            <div className="signature-preview">
-              <span className="signature-text">{signature}</span>
-              <span className="signature-meta">
-                Signed on {new Date().toLocaleDateString('en-US', {
-                  day: 'numeric', month: 'long', year: 'numeric'
-                })}
-              </span>
+            <div style={{
+              marginTop: '16px',
+              background: '#F8FAFC',
+              padding: '16px 20px',
+              borderLeft: '3px solid var(--brand)',
+              borderTopRightRadius: 'var(--radius-md)',
+              borderBottomRightRadius: 'var(--radius-md)'
+            }}>
+              <div style={{
+                fontFamily: '"Brush Script MT", cursive',
+                fontSize: '28px',
+                color: 'var(--brand-dark)',
+                marginBottom: '4px'
+              }}>
+                {signature}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Digitally signed on {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </div>
             </div>
           )}
         </div>
@@ -83,9 +95,10 @@ export default function ContractViewer() {
           <button
             type="submit"
             disabled={loading || !signature.trim()}
-            className={`btn-sign ${loading ? 'btn-loading' : ''}`}
+            className={`btn-primary ${loading ? 'btn-loading' : ''}`}
+            style={{ padding:'12px 28px', background:'var(--brand)', color:'#fff' }}
           >
-            {loading ? 'Processing...' : 'Sign & Continue'}
+            {loading ? 'Processing...' : 'Sign & Continue →'}
           </button>
         </div>
       </form>

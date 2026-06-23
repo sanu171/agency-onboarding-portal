@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AgencyOnboarding.API.Services;
 using Stripe;
+using Hangfire;
+using Hangfire.InMemory;
+using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,20 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPdfService, PdfService>();
+
+// Email — MockEmailService for calendar/general emails, ResendEmailService for OTP
 builder.Services.AddScoped<IEmailService, MockEmailService>();
+builder.Services.AddScoped<ResendEmailService>();
+
+// Resend SDK
+builder.Services.AddResend(options =>
+{
+    options.ApiToken = builder.Configuration["Resend:ApiKey"] ?? string.Empty;
+});
+
+// Hangfire with InMemory storage (fire-and-forget OTP emails)
+builder.Services.AddHangfire(config => config.UseInMemoryStorage());
+builder.Services.AddHangfireServer();
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"] ?? "sk_test_dummy";
 
@@ -38,7 +54,6 @@ string GetConnectionString()
     if (string.IsNullOrEmpty(dbUrl))
         return builder.Configuration.GetConnectionString("DefaultConnection")!;
         
-    // Remove accidental copy-pasted quotes from Render dashboard
     if (dbUrl.StartsWith("\"") && dbUrl.EndsWith("\""))
         dbUrl = dbUrl.Substring(1, dbUrl.Length - 2);
     if (dbUrl.StartsWith("'") && dbUrl.EndsWith("'"))
@@ -49,7 +64,7 @@ string GetConnectionString()
     if (!dbUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) && 
         !dbUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
     {
-        return dbUrl; // It's already a native .NET connection string!
+        return dbUrl;
     }
         
     var uri = new Uri(dbUrl);
@@ -78,19 +93,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    // Hangfire dashboard — accessible at /hangfire in development only
+    app.UseHangfireDashboard("/hangfire");
 }
 
-// Disable HTTPS redirection for local HTTP development to prevent CORS preflight redirect drops
-// app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())

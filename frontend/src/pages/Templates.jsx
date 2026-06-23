@@ -2,6 +2,54 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 
+const TemplateCard = ({ template, onEdit, onDelete }) => (
+  <div style={{
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '20px 24px',
+    marginBottom: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }}>
+    <div>
+      <div style={{ fontWeight:'600', fontSize:'16px', marginBottom:'10px' }}>{template.name}</div>
+      <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+        {['Intake', 'Files', 'Contract', 'Payment', 'Booking'].map(step => {
+          const propMap = {
+            'Intake': 'requireIntake',
+            'Files': 'requireFileUpload',
+            'Contract': 'requireContract',
+            'Payment': 'requirePayment',
+            'Booking': 'requireBooking'
+          };
+          const isReq = template[propMap[step]];
+          return (
+            <span key={step} style={{
+              padding: '3px 10px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '600',
+              background: isReq ? 'var(--success-light)' : '#F1F5F9',
+              color: isReq ? 'var(--success)' : 'var(--text-muted)',
+              border: `1px solid ${isReq ? 'var(--success-border)' : 'var(--border)'}`
+            }}>
+              {isReq ? '✓' : '○'} {step}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+    <div style={{ display:'flex', gap:'8px' }}>
+      <button onClick={onEdit} className="btn-secondary" style={{ padding:'8px 16px', fontSize:'13px' }}>Edit</button>
+      <button onClick={onDelete} style={{
+        padding:'8px 16px', fontSize:'13px', background:'var(--danger-light)',
+        color:'var(--danger)', border:'1px solid #FECACA', borderRadius:'var(--radius-md)', fontWeight:'600'
+      }}>Delete</button>
+    </div>
+  </div>
+);
 export default function Templates() {
   const { user } = useAuth();
   const [templates, setTemplates] = useState([]);
@@ -91,28 +139,16 @@ export default function Templates() {
         </button>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {templates.length === 0 && <li className="p-6 text-center text-gray-500">No templates found. Create one to get started!</li>}
-          {templates.map((tpl) => (
-            <li key={tpl.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900">{tpl.name}</h3>
-                <p className="text-sm text-gray-500 mt-1 flex gap-4">
-                  <span>Intake: {tpl.requireIntake ? '✅' : '❌'}</span>
-                  <span>Files: {tpl.requireFileUpload ? '✅' : '❌'}</span>
-                  <span>Contract: {tpl.requireContract ? '✅' : '❌'}</span>
-                  <span>Payment: {tpl.requirePayment ? '✅' : '❌'}</span>
-                  <span>Booking: {tpl.requireBooking ? '✅' : '❌'}</span>
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => openModal(tpl)} className="text-blue-600 hover:text-blue-900"><Edit2 size={18} /></button>
-                <button onClick={() => handleDelete(tpl.id)} className="text-red-600 hover:text-red-900"><Trash2 size={18} /></button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div>
+        {templates.length === 0 && <div className="p-6 text-center text-gray-500">No templates found. Create one to get started!</div>}
+        {templates.map((tpl) => (
+          <TemplateCard 
+            key={tpl.id} 
+            template={tpl} 
+            onEdit={() => openModal(tpl)} 
+            onDelete={() => handleDelete(tpl.id)} 
+          />
+        ))}
       </div>
 
       {isModalOpen && (

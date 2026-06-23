@@ -71,13 +71,31 @@ export default function FileUpload() {
       <div 
         onDragOver={e => e.preventDefault()}
         onDrop={handleDrop}
-        className="border-2 border-dashed border-gray-300 rounded-lg p-10 flex flex-col items-center justify-center bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors"
+        style={{
+          border: '2px dashed var(--border-strong)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '48px 32px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          background: 'var(--bg-surface)'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = 'var(--brand)';
+          e.currentTarget.style.background = 'var(--brand-light)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = 'var(--border-strong)';
+          e.currentTarget.style.background = 'var(--bg-surface)';
+        }}
       >
-        <UploadCloud size={48} className="mb-4 text-blue-500" />
-        <p className="text-lg font-medium mb-2">Drag and drop files here</p>
-        <p className="text-sm mb-4">or</p>
-        <label className="cursor-pointer bg-blue-100 text-blue-700 px-4 py-2 rounded font-medium hover:bg-blue-200">
-          Browse Files
+        <div style={{ fontSize:'40px', marginBottom:'12px' }}>📁</div>
+        <div style={{ fontWeight:'600', fontSize:'15px', marginBottom:'6px' }}>Drag and drop your files here</div>
+        <div style={{ color:'var(--text-muted)', fontSize:'13px', marginBottom:'20px' }}>
+          Logos, brand guides, reference images — PNG, SVG, PDF, JPG up to 50MB
+        </div>
+        <label className="btn-secondary" style={{ display:'inline-flex', gap:'6px' }}>
+          📂 Browse Files
           <input type="file" multiple className="hidden" onChange={handleFileSelect} />
         </label>
       </div>
@@ -101,16 +119,20 @@ export default function FileUpload() {
         </div>
       )}
       
-      <div className="flex justify-end gap-4 mt-8">
-        <button onClick={handleSkip} className="text-gray-600 font-medium px-6 py-2 rounded hover:bg-gray-100">
-          Skip for now
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:'24px' }}>
+        <button onClick={handleSkip} style={{
+          background:'none', border:'none', color:'var(--text-muted)',
+          fontSize:'13px', cursor:'pointer', textDecoration:'underline'
+        }}>
+          Skip this step
         </button>
         <button
           onClick={handleSubmit}
           disabled={uploading || files.length === 0}
-          className="bg-blue-600 text-white font-medium px-6 py-2 rounded shadow hover:bg-blue-700 disabled:opacity-50"
+          className={`btn-primary ${uploading ? 'btn-loading' : ''}`}
+          style={{ padding:'12px 28px' }}
         >
-          {uploading ? 'Uploading...' : 'Save & Continue'}
+          {uploading ? 'Uploading...' : 'Save & Continue →'}
         </button>
       </div>
     </div>

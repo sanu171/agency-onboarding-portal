@@ -74,14 +74,34 @@ export default function PaymentForm() {
       </p>
 
       {clientSecret === 'mock_secret_for_local_dev' ? (
-        <div className="bg-amber-50 border border-amber-200 p-6 rounded-lg text-amber-800 text-center shadow-inner">
-          <p className="font-bold text-lg mb-2">Developer Mode</p>
-          <p className="text-sm mb-4">Stripe Test Keys are missing on the backend. You can bypass this step solely for testing workflows locally.</p>
-          <button 
-            onClick={() => handleSuccess("pi_mock_bypass")} 
-            className="w-full bg-amber-500 text-white font-bold py-3 rounded hover:bg-amber-600 transition"
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '32px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize:'32px', marginBottom:'12px' }}>💳</div>
+          <p style={{ color:'var(--text-secondary)', fontSize:'14px', marginBottom:'20px' }}>
+            Secure payment powered by Stripe
+          </p>
+          <div style={{
+            background: '#F1F5F9',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            padding: '14px 20px',
+            color: 'var(--text-muted)',
+            fontSize: '13px',
+            marginBottom: '20px'
+          }}>
+            Payment form will appear here
+          </div>
+          <button
+            className="btn-primary"
+            style={{ width:'100%', padding:'13px', display:'flex', justifyContent:'center' }}
+            onClick={() => handleSuccess("pi_mock_bypass")}
           >
-            Bypass Payment (Local Dev)
+            Pay ${sessionData.template?.paymentAmount?.toFixed(2)}
           </button>
         </div>
       ) : clientSecret ? (

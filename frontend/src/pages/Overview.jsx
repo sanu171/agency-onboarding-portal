@@ -3,6 +3,84 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Copy, CheckCircle, ChevronRight, FileText, Upload, PenTool, CreditCard, Calendar } from 'lucide-react';
 
+const StatCard = ({ label, value, color, icon }) => (
+  <div style={{
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '20px 24px',
+    flex: 1,
+    borderTop: `3px solid ${color}`
+  }}>
+    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'12px' }}>
+      <span style={{ fontSize:'13px', fontWeight:'600', color:'var(--text-secondary)', textTransform:'uppercase', letterSpacing:'0.05em' }}>{label}</span>
+      <span style={{ fontSize:'18px' }}>{icon}</span>
+    </div>
+    <div style={{ fontSize:'36px', fontWeight:'700', color:'var(--text-primary)', lineHeight:'1' }}>{value}</div>
+  </div>
+);
+
+const ClientRow = ({ s, navigate }) => {
+  const { clientName, clientEmail, templateName, expiresAt, status, currentStep } = s;
+  const isComplete = currentStep === 'complete';
+  const name = clientName || 'Unnamed Client';
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '16px 20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '10px',
+      cursor: 'pointer',
+      transition: 'all 0.15s'
+    }}
+    onClick={() => navigate(`/dashboard/client/${s.id}`)}
+    onMouseEnter={e => {
+      e.currentTarget.style.borderColor = '#93C5FD';
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(37,99,235,0.08)';
+      e.currentTarget.style.transform = 'translateY(-1px)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.borderColor = 'var(--border)';
+      e.currentTarget.style.boxShadow = 'none';
+      e.currentTarget.style.transform = 'translateY(0)';
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
+        <div style={{
+          width:'40px', height:'40px', borderRadius:'50%',
+          background: 'var(--brand-light)',
+          color: 'var(--brand)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontWeight:'700', fontSize:'14px', flexShrink:0
+        }}>
+          {name.charAt(0).toUpperCase()}
+        </div>
+
+        <div>
+          <div style={{ fontWeight:'600', fontSize:'15px', color:'var(--text-primary)', marginBottom:'2px' }}>
+            {name.charAt(0).toUpperCase() + name.slice(1)}
+          </div>
+          <div style={{ fontSize:'13px', color:'var(--text-muted)' }}>{clientEmail}</div>
+          <div style={{ display:'flex', gap:'12px', marginTop:'4px' }}>
+            <span style={{ fontSize:'12px', color:'var(--text-muted)' }}>📋 {templateName}</span>
+            <span style={{ fontSize:'12px', color:'var(--text-muted)' }}>🕐 Expires {new Date(expiresAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+        <span className={`badge badge-${isComplete ? 'complete' : 'pending'}`}>
+          {isComplete ? '✓ Complete' : `● ${currentStep.toUpperCase()}`}
+        </span>
+        <span style={{ color:'var(--text-muted)', fontSize:'18px' }}>›</span>
+      </div>
+    </div>
+  );
+};
+
 export default function Overview() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -56,29 +134,26 @@ export default function Overview() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Client Overview</h2>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'28px' }}>
+        <div>
+          <h1 style={{ fontSize:'22px', fontWeight:'700', color:'var(--text-primary)', marginBottom:'4px' }}>Client Overview</h1>
+          <p style={{ fontSize:'14px', color:'var(--text-muted)' }}>
+            {new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+          </p>
+        </div>
         <button 
           onClick={() => { setIsModalOpen(true); setGeneratedLink(''); }}
-          className="btn-primary"
+          className="btn-primary" 
+          style={{ display:'flex', alignItems:'center', gap:'6px' }}
         >
-          <Plus size={18} /> New Client
+          <span style={{ fontSize:'18px', lineHeight:1 }}>+</span> New Client
         </button>
       </div>
 
-      <div className="flex gap-6 mb-8">
-        <div className="stat-card">
-          <div className="label">Total Clients</div>
-          <div className="value">{sessions.length}</div>
-        </div>
-        <div className="stat-card">
-          <div className="label">In Progress</div>
-          <div className="value">{sessions.filter(s => s.currentStep !== 'complete').length}</div>
-        </div>
-        <div className="stat-card">
-          <div className="label">Complete</div>
-          <div className="value">{sessions.filter(s => s.currentStep === 'complete').length}</div>
-        </div>
+      <div className="flex flex-col md:flex-row gap-6 mb-8">
+        <StatCard label="Total Clients" value={sessions.length} color="#2563EB" icon="👥" />
+        <StatCard label="In Progress" value={sessions.filter(s => s.currentStep !== 'complete').length} color="#D97706" icon="⏳" />
+        <StatCard label="Complete" value={sessions.filter(s => s.currentStep === 'complete').length} color="#16A34A" icon="✅" />
       </div>
 
       <div>
@@ -94,30 +169,7 @@ export default function Overview() {
         ) : (
           <div>
             {sessions.map((s) => (
-              <div 
-                key={s.id} 
-                className="client-card"
-                onClick={() => navigate(`/dashboard/client/${s.id}`)}
-              >
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="client-name">{s.clientName}</div>
-                    {s.currentStep === 'complete' ? (
-                      <span className="badge badge-complete">COMPLETE</span>
-                    ) : (
-                      <span className="badge badge-in-progress">WAITING: {s.currentStep.toUpperCase()}</span>
-                    )}
-                  </div>
-                  <div className="client-email">{s.clientEmail}</div>
-                  <div className="client-meta">
-                    <span className="flex items-center gap-1">📋 {s.templateName}</span>
-                    <span className="flex items-center gap-1">⏱️ Expires {new Date(s.expiresAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div>
-                  <ChevronRight className="text-gray-400" size={20} />
-                </div>
-              </div>
+              <ClientRow key={s.id} s={s} navigate={navigate} />
             ))}
           </div>
         )}

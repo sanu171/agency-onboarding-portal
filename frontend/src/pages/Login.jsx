@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Building2 } from 'lucide-react';
 
@@ -9,7 +9,11 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,20 +42,59 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center text-blue-600">
-          <Building2 size={48} />
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr', minHeight: '100vh', background: '#fff' }} className="md:grid-cols-[420px_1fr]">
+      
+      {/* LEFT — brand panel */}
+      <div className="hidden md:flex flex-col justify-between" style={{
+        background: 'linear-gradient(160deg, #0F172A 0%, #1E3A5F 100%)',
+        padding: '48px 40px',
+      }}>
+        <div>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'48px' }}>
+            <div style={{
+              width:'36px', height:'36px', background:'#2563EB',
+              borderRadius:'8px', display:'flex', alignItems:'center',
+              justifyContent:'center', color:'#fff', fontWeight:'700', fontSize:'16px'
+            }}>C</div>
+            <span style={{ color:'#fff', fontWeight:'700', fontSize:'18px' }}>Clientflow</span>
+          </div>
+
+          <h1 style={{ color:'#fff', fontSize:'28px', fontWeight:'700', lineHeight:'1.3', marginBottom:'16px' }}>
+            The professional way to onboard your clients
+          </h1>
+          <p style={{ color:'#94A3B8', fontSize:'15px', lineHeight:'1.7', marginBottom:'40px' }}>
+            Send one link. Your client fills everything — brand info, files, contract, deposit, and kickoff booking — in 15 minutes.
+          </p>
+
+          {['No more email back-and-forth', 'Contracts signed & deposits paid automatically', 'Full client dashboard from day one'].map((b,i) => (
+            <div key={i} style={{ display:'flex', gap:'12px', alignItems:'flex-start', marginBottom:'16px' }}>
+              <div style={{
+                width:'20px', height:'20px', borderRadius:'50%', background:'rgba(37,99,235,0.2)',
+                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:'1px'
+              }}>
+                <span style={{ color:'#60A5FA', fontSize:'11px', fontWeight:'700' }}>✓</span>
+              </div>
+              <span style={{ color:'#CBD5E1', fontSize:'14px', lineHeight:'1.5' }}>{b}</span>
+            </div>
+          ))}
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Agency Portal Login
-        </h2>
+
+        <p style={{ color:'#475569', fontSize:'12px' }}>
+          © 2026 Clientflow. Built for agencies.
+        </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      {/* RIGHT — form panel */}
+      <div style={{
+        display:'flex', alignItems:'center', justifyContent:'center',
+        padding:'48px', background:'#F8FAFC'
+      }}>
+        <div style={{ width:'100%', maxWidth:'400px' }}>
+          <h2 style={{ fontSize:'24px', fontWeight:'700', marginBottom:'6px' }}>Welcome back</h2>
+          <p style={{ color:'var(--text-secondary)', marginBottom:'32px' }}>Sign in to your agency dashboard</p>
+
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && <div className="text-red-500 text-sm text-center font-medium bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
+            {error && <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
             <div>
               <label>Email address</label>
               <input
@@ -82,8 +125,9 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-          <div className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account? <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">Register</Link>
+
+          <div style={{ marginTop:'24px', textAlign:'center', fontSize:'13px', color:'var(--text-muted)' }}>
+            Don't have an account? <Link to="/register" style={{ color:'var(--brand)', fontWeight:'600' }}>Create one free</Link>
           </div>
         </div>
       </div>

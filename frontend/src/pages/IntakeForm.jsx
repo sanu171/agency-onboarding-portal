@@ -75,12 +75,26 @@ export default function IntakeForm() {
     }
   };
 
+  const agencyBrandColor = sessionData.agency?.brandColor || 'var(--brand)';
+
   return (
-    <div className="p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Step 1: Brand Intake Information</h2>
-      <p className="text-gray-600 mb-8 pb-4 border-b">Complete this form so we can understand your business better.</p>
-      
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
+    <div style={{
+      maxWidth: '680px',
+      margin: '32px auto',
+      background: 'var(--bg-card)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--border)',
+      borderTop: `3px solid ${agencyBrandColor}`,
+      boxShadow: 'var(--shadow-md)',
+      overflow: 'hidden'
+    }}>
+      <div style={{ padding: '32px 40px' }}>
+        <h2 style={{ fontSize:'20px', fontWeight:'700', marginBottom:'6px' }}>Brand Intake Information</h2>
+        <p style={{ color:'var(--text-muted)', fontSize:'14px', marginBottom:'28px' }}>
+          Help us understand your business so we can deliver the best results.
+        </p>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
@@ -189,16 +203,23 @@ export default function IntakeForm() {
           />
         </div>
 
-        <div className="pt-6 border-t flex justify-end">
+        <div style={{
+          paddingTop: '24px',
+          borderTop: '1px solid var(--border)',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
           <button 
             type="submit" 
             disabled={loading}
             className={`btn-primary ${loading ? 'btn-loading' : ''}`}
+            style={{ padding:'12px 28px', fontSize:'15px' }}
           >
-            {loading ? 'Saving...' : 'Save & Continue'}
+            {loading ? 'Saving...' : 'Save & Continue →'}
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

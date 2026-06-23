@@ -72,7 +72,17 @@ export default function BookingCalendar() {
                   setSelectedDate(e.target.value);
                   setSelectedSlot(null);
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white cursor-pointer font-medium"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-md)',
+                  fontFamily: 'inherit',
+                  fontSize: '15px',
+                  color: 'var(--text-primary)',
+                  background: '#F8FAFC',
+                  cursor: 'pointer'
+                }}
               />
             </div>
           </div>
@@ -85,11 +95,16 @@ export default function BookingCalendar() {
             <button
               key={slot.id}
               onClick={() => setSelectedSlot(slot)}
-              className={`w-full flex items-center justify-center gap-2 p-3 border rounded-lg transition-colors ${
-                selectedSlot?.id === slot.id 
-                ? 'bg-blue-50 border-blue-500 text-blue-700 font-medium ring-1 ring-blue-500' 
-                : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-gray-50'
-              }`}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                padding: '12px', border: `1px solid ${selectedSlot?.id === slot.id ? 'var(--brand)' : 'var(--border)'}`,
+                borderRadius: 'var(--radius-md)',
+                background: selectedSlot?.id === slot.id ? 'var(--brand-light)' : 'var(--bg-card)',
+                color: selectedSlot?.id === slot.id ? 'var(--brand-dark)' : 'var(--text-primary)',
+                fontWeight: selectedSlot?.id === slot.id ? '600' : '500',
+                transition: 'all 0.15s',
+                cursor: 'pointer'
+              }}
             >
               <Clock size={16} />
               {slot.time}
@@ -102,9 +117,10 @@ export default function BookingCalendar() {
         <button
           onClick={handleBook}
           disabled={loading || !selectedSlot}
-          className={`btn-primary ${loading ? 'btn-loading' : ''} disabled:opacity-50 px-8`}
+          className={`btn-primary ${loading ? 'btn-loading' : ''}`}
+          style={{ padding:'12px 28px', fontSize:'15px' }}
         >
-          {loading ? 'Booking...' : 'Confirm Meeting'}
+          {loading ? 'Booking...' : 'Confirm Meeting →'}
         </button>
       </div>
     </div>
