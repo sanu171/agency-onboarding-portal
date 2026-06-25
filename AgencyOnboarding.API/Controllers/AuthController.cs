@@ -6,8 +6,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Hangfire;
 using AgencyOnboarding.API.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AgencyOnboarding.API.Controllers;
 
@@ -17,13 +18,22 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
-    private readonly ResendEmailService _emailService;
+    private readonly IEmailService _emailService;
+    private readonly IOtpService _otpService;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AppDbContext context, IConfiguration configuration, ResendEmailService emailService)
+    public AuthController(
+        AppDbContext context, 
+        IConfiguration configuration, 
+        IEmailService emailService, 
+        IOtpService otpService,
+        ILogger<AuthController> logger)
     {
         _context = context;
         _configuration = configuration;
         _emailService = emailService;
+        _otpService = otpService;
+        _logger = logger;
     }
 
     [HttpPost("register")]
@@ -64,51 +74,131 @@ public class AuthController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
-        // Check whether the email exists in the database
+        // 1. Rate limit OTP generation requests per email
+        bool isRateLimited = await _otpService.IsRateLimitedAsync(request.Email);
+        if (isRateLimited)
+        {
+            _logger.LogWarning("[Security] OTP generation rate-limited for email: {Email}", request.Email);
+            return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "Too many OTP requests. Please wait a minute and try again." });
+        }
+
+        // 2. Prevent user enumeration (return generic response even if email doesn't exist)
         var agency = await _context.Agencies.FirstOrDefaultAsync(a => a.Email == request.Email);
         if (agency == null)
-            return BadRequest(new { message = "This email is not registered with any agency. Please check the spelling or sign up." });
+        {
+            _logger.LogInformation("[Security] OTP requested for unregistered email: {Email}", request.Email);
+            return Ok(new { message = "If that email exists, you will receive an OTP shortly." });
+        }
 
-        // Generate a 6-digit numeric OTP
-        var otp = new Random().Next(100_000, 999_999).ToString();
+        // 3. Generate secure OTP
+        var otp = await _otpService.GenerateOtpAsync(agency.Id);
 
-        // Store BCrypt hash (never store the raw OTP) and a 15-minute expiry
-        agency.PasswordResetOtpHash = BCrypt.Net.BCrypt.HashPassword(otp);
-        agency.PasswordResetOtpExpiry = DateTime.UtcNow.AddMinutes(15);
-        await _context.SaveChangesAsync();
+        // 4. Log OTP in development console for easy local testing
+        _logger.LogInformation("\n==================================================\n[OTP EMAIL] TO: {To}\nOTP CODE: {Otp}\n==================================================\n", request.Email, otp);
 
-        // Enqueue the email as a Hangfire background job — API returns immediately
-        // Capture values for the closure (avoid capturing EF-tracked entity)
-        var emailTo = agency.Email;
-        BackgroundJob.Enqueue(() => _emailService.SendOtpEmailAsync(emailTo, emailTo, otp));
+        // 5. Send OTP email using MailKit asynchronously
+        var emailSubject = "Your OnBoardly Password Reset Code";
+        var textBody = $"Your OnBoardly password reset OTP is: {otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, please ignore this email.";
+        var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6fa; margin: 0; padding: 0; }}
+    .wrapper {{ max-width: 480px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }}
+    .header {{ background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 32px; text-align: center; }}
+    .header h1 {{ color: #fff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }}
+    .header p {{ color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px; }}
+    .body {{ padding: 36px 40px; }}
+    .otp-box {{ background: #f0f4ff; border: 2px solid #c7d7fd; border-radius: 12px; padding: 28px; text-align: center; margin: 24px 0; }}
+    .otp-code {{ font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #2563eb; font-family: monospace; }}
+    .otp-note {{ font-size: 13px; color: #6b7280; margin-top: 10px; }}
+    .footer {{ padding: 20px 40px; background: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }}
+    p {{ color: #374151; line-height: 1.6; font-size: 15px; margin: 0 0 16px; }}
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <div class='header'>
+      <h1>OnBoardly</h1>
+      <p>Password Reset Request</p>
+    </div>
+    <div class='body'>
+      <p>We received a request to reset your password. Use the code below to proceed.</p>
+      <div class='otp-box'>
+        <div class='otp-code'>{otp}</div>
+        <div class='otp-note'>⏱ Expires in <strong>10 minutes</strong></div>
+      </div>
+      <p style='font-size:13px; color:#6b7280;'>If you didn't request a password reset, you can safely ignore this email. Your account remains secure.</p>
+    </div>
+    <div class='footer'>OnBoardly · Sent to {request.Email}</div>
+  </div>
+</body>
+</html>";
+
+        // Dispatch background email task to avoid blocking the HTTP thread
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _emailService.SendEmailAsync(request.Email, emailSubject, textBody, htmlBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[Security] Failed to send OTP email to {Email} in background task.", request.Email);
+            }
+        });
 
         return Ok(new { message = "If that email exists, you will receive an OTP shortly." });
     }
 
     // -------------------------------------------------------------------------
-    // Reset Password — Step 2: Verify OTP + Set New Password
+    // Verify OTP — Step 2: Check OTP Validity
+    // -------------------------------------------------------------------------
+    [HttpPost("verify-otp")]
+    public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+    {
+        bool isValid = await _otpService.VerifyOtpAsync(request.Email, request.Otp);
+        if (!isValid)
+        {
+            return BadRequest(new { message = "Invalid or expired OTP." });
+        }
+        return Ok(new { message = "OTP verified successfully." });
+    }
+
+    // -------------------------------------------------------------------------
+    // Reset Password — Step 3: Verify OTP + Set New Password
     // -------------------------------------------------------------------------
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
+        // Enforce strong password requirements
+        if (string.IsNullOrWhiteSpace(request.NewPassword) || 
+            request.NewPassword.Length < 8 || 
+            !request.NewPassword.Any(char.IsDigit) || 
+            !request.NewPassword.Any(char.IsLetter))
+        {
+            return BadRequest(new { message = "Password must be at least 8 characters long and contain both letters and numbers." });
+        }
+
+        bool isOtpValid = await _otpService.UseOtpAsync(request.Email, request.Otp);
+        if (!isOtpValid)
+        {
+            return BadRequest(new { message = "Invalid or expired OTP." });
+        }
+
         var agency = await _context.Agencies.FirstOrDefaultAsync(a => a.Email == request.Email);
         if (agency == null)
+        {
             return BadRequest(new { message = "Invalid request." });
+        }
 
-        // Check expiry
-        if (agency.PasswordResetOtpExpiry == null || DateTime.UtcNow > agency.PasswordResetOtpExpiry)
-            return BadRequest(new { message = "OTP has expired. Please request a new one." });
-
-        // Verify OTP against hash
-        if (string.IsNullOrEmpty(agency.PasswordResetOtpHash) ||
-            !BCrypt.Net.BCrypt.Verify(request.Otp, agency.PasswordResetOtpHash))
-            return BadRequest(new { message = "Invalid OTP. Please check the code and try again." });
-
-        // All good — update password and clear OTP fields
+        // All good — update password securely
         agency.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-        agency.PasswordResetOtpHash = null;
-        agency.PasswordResetOtpExpiry = null;
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("[Security] Password successfully reset for agency email: {Email}", request.Email);
 
         return Ok(new { message = "Password reset successfully." });
     }

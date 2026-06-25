@@ -13,10 +13,6 @@ public class Agency
     public string? BrandColor { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Password reset via OTP
-    public string? PasswordResetOtpHash { get; set; }    // BCrypt hash of the 6-digit OTP
-    public DateTime? PasswordResetOtpExpiry { get; set; } // 15-minute TTL
-
     public ICollection<Template> Templates { get; set; } = new List<Template>();
     public ICollection<OnboardingSession> Sessions { get; set; } = new List<OnboardingSession>();
 }
@@ -109,4 +105,16 @@ public class Booking
     public DateTime ScheduledCallAt { get; set; }
     public string? MeetingLink { get; set; }
     public DateTime BookedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class PasswordResetOtp
+{
+    public int Id { get; set; }
+    public int AgencyId { get; set; }
+    public Agency? Agency { get; set; }
+    public string OtpHash { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime ExpiresAt { get; set; }
+    public bool IsUsed { get; set; } = false;
+    public int VerificationAttempts { get; set; } = 0;
 }

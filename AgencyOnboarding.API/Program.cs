@@ -5,9 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AgencyOnboarding.API.Services;
 using Stripe;
-using Hangfire;
-using Hangfire.InMemory;
-using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,19 +16,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-// Email — MockEmailService for calendar/general emails, ResendEmailService for OTP
-builder.Services.AddScoped<IEmailService, MockEmailService>();
-builder.Services.AddScoped<ResendEmailService>();
-
-// Resend SDK
-builder.Services.AddResend(options =>
-{
-    options.ApiToken = builder.Configuration["Resend:ApiKey"] ?? string.Empty;
-});
-
-// Hangfire with InMemory storage (fire-and-forget OTP emails)
-builder.Services.AddHangfire(config => config.UseInMemoryStorage());
-builder.Services.AddHangfireServer();
+// Email & OTP Services
+builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"] ?? "sk_test_dummy";
 
@@ -96,8 +83,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // Hangfire dashboard — accessible at /hangfire in development only
-    app.UseHangfireDashboard("/hangfire");
 }
 
 app.UseCors("AllowFrontend");

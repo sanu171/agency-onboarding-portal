@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<ContractSignature> ContractSignatures { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,5 +47,11 @@ public class AppDbContext : DbContext
             .HasOne(s => s.Booking)
             .WithOne(b => b.Session)
             .HasForeignKey<Booking>(b => b.OnboardingSessionId);
+
+        modelBuilder.Entity<PasswordResetOtp>()
+            .HasOne(o => o.Agency)
+            .WithMany()
+            .HasForeignKey(o => o.AgencyId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
