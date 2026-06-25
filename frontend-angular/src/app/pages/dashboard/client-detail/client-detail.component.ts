@@ -169,10 +169,10 @@ import { LucideAngularModule, ArrowLeft, Download, CheckCircle, Clock, Bell, Pen
               <p class="font-bold text-lg text-green-800 mb-1">Contract Signed</p>
               <div class="bg-white border rounded p-4 mt-4 text-left">
                 <p class="text-sm text-gray-600 mb-2">Signature applied by:</p>
-                <p class="font-mono text-lg text-gray-800 border-b border-gray-200 inline-block pb-1 pr-8">{{ client.contractSignature.signatureDataUrl }}</p>
+                <p class="font-mono text-lg text-gray-800 border-b border-gray-200 inline-block pb-1 pr-8">{{ client.contractSignature.signatureDataUrl || client.contractSignature.signatureDataUrl || client.contractSignature.SignatureDataUrl || client.contractSignature.signatureDataURL }}</p>
                 <div class="mt-4 grid grid-cols-2 gap-4 text-xs text-gray-500">
-                  <div><strong>IP Address:</strong><br />{{ client.contractSignature.ipAddress }}</div>
-                  <div><strong>Timestamp:</strong><br />{{ client.contractSignature.signedAt | date:'medium' }}</div>
+                  <div><strong>IP Address:</strong><br />{{ client.contractSignature.ipAddress || client.contractSignature.IpAddress }}</div>
+                  <div><strong>Timestamp:</strong><br />{{ (client.contractSignature.signedAt || client.contractSignature.SignedAt) | date:'medium' }}</div>
                 </div>
               </div>
             </div>
