@@ -5,6 +5,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
+import { getErrorMessage } from '../../utils/error-handler';
 
 @Component({
   selector: 'app-login',
@@ -173,7 +174,7 @@ export class LoginComponent implements OnInit {
       });
       this.router.navigate(['/dashboard']);
     } catch (err: any) {
-      this.error = err?.error?.message || err?.message || 'Login failed. Please try again.';
+      this.error = getErrorMessage(err, 'Login failed. Please try again.');
     } finally {
       this.loading = false;
     }

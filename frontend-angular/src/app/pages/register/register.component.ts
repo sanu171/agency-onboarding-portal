@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { getErrorMessage } from '../../utils/error-handler';
 
 @Component({
   selector: 'app-register',
@@ -151,7 +152,7 @@ export class RegisterComponent {
       this.success = true;
       setTimeout(() => this.router.navigate(['/login']), 2000);
     } catch (err: any) {
-      this.error = err?.error?.message || err?.message || 'Registration failed';
+      this.error = getErrorMessage(err, 'Registration failed.');
     } finally {
       this.loading = false;
     }

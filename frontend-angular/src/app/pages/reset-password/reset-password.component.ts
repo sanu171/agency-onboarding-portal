@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { getErrorMessage } from '../../utils/error-handler';
 
 /** Custom validator: newPassword and confirmPassword must match */
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -313,7 +314,7 @@ export class ResetPasswordComponent implements OnInit {
       ).toPromise();
       this.success = true;
     } catch (err: any) {
-      const msg = err?.error?.message || 'Something went wrong. Please try again.';
+      const msg = getErrorMessage(err, 'Failed to reset password. Please try again.');
       // Route OTP-specific errors to the OTP field area
       if (msg.toLowerCase().includes('otp') || msg.toLowerCase().includes('code')) {
         this.otpError = msg;
