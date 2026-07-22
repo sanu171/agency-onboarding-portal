@@ -11,13 +11,13 @@ import { AuthService } from './services/auth.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'OnBoardly';
+  title = 'Onvora';
   auth = inject(AuthService);
   router = inject(Router);
   private titleService = inject(Title);
 
   ngOnInit() {
-    this.titleService.setTitle('OnBoardly');
+    this.titleService.setTitle('Onvora');
     if (this.auth.isAuthenticated() && this.router.url === '/') {
       this.router.navigate(['/dashboard']);
     }

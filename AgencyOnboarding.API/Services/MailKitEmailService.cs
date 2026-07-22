@@ -31,8 +31,8 @@ public class MailKitEmailService : IEmailService
         var username = _config["Smtp:Username"] ?? "";
         var password = _config["Smtp:Password"] ?? "";
         var enableSsl = bool.Parse(_config["Smtp:EnableSsl"] ?? "true");
-        var fromEmail = _config["Smtp:FromEmail"] ?? "no-reply@onboardly.com";
-        var fromName = _config["Smtp:FromName"] ?? "OnBoardly Support";
+        var fromEmail = _config["Smtp:FromEmail"] ?? "no-reply@Onvora.com";
+        var fromName = _config["Smtp:FromName"] ?? "Onvora Support";
 
         // Dev fallback if SMTP is not configured
         if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username))
@@ -62,7 +62,7 @@ public class MailKitEmailService : IEmailService
         try
         {
             using var client = new SmtpClient();
-            
+
             // Connect to SMTP Server
             var secureSocketOption = enableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
             if (enableSsl && int.Parse(portStr) == 465)
@@ -71,7 +71,7 @@ public class MailKitEmailService : IEmailService
             }
 
             await client.ConnectAsync(host, int.Parse(portStr), secureSocketOption);
-            
+
             // Authenticate if credentials are provided
             if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
             {
@@ -93,11 +93,11 @@ public class MailKitEmailService : IEmailService
     public async Task SendCalendarInviteAsync(string to, string subject, string meetingLink, DateTime scheduledTime)
     {
         var body = $"Your kickoff call is scheduled.\n\nTime: {scheduledTime:f} UTC\nMeeting Link: {meetingLink}";
-        
+
         // Construct standard calendar ICS attachment file
         var icsContent = $@"BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//OnBoardly//NONSGML v1.0//EN
+PRODID:-//Onvora//NONSGML v1.0//EN
 BEGIN:VEVENT
 UID:{Guid.NewGuid()}
 DTSTAMP:{DateTime.UtcNow:yyyyMMddTHHmmssZ}

@@ -22,7 +22,7 @@ export class AuthService {
 
   // BroadcastChannel: used to propagate logout events to all other open tabs
   // so that duplicated/sibling tabs are also signed out immediately.
-  private readonly logoutChannel = new BroadcastChannel('onboardly_logout');
+  private readonly logoutChannel = new BroadcastChannel('Onvora_logout');
 
   private userSignal = signal<User | null>(null);
   private loadingSignal = signal<boolean>(true);

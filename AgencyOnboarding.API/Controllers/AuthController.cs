@@ -23,9 +23,9 @@ public class AuthController : ControllerBase
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
-        AppDbContext context, 
-        IConfiguration configuration, 
-        IEmailService emailService, 
+        AppDbContext context,
+        IConfiguration configuration,
+        IEmailService emailService,
         IOtpService otpService,
         ILogger<AuthController> logger)
     {
@@ -60,7 +60,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var agency = await _context.Agencies.FirstOrDefaultAsync(a => a.Email == request.Email);
-        
+
         if (agency == null || !BCrypt.Net.BCrypt.Verify(request.Password, agency.PasswordHash))
             return Unauthorized(new { message = "Invalid email or password" });
 
@@ -97,8 +97,8 @@ public class AuthController : ControllerBase
         _logger.LogInformation("\n==================================================\n[OTP EMAIL] TO: {To}\nOTP CODE: {Otp}\n==================================================\n", request.Email, otp);
 
         // 5. Send OTP email using MailKit asynchronously
-        var emailSubject = "Your OnBoardly Password Reset Code";
-        var textBody = $"Your OnBoardly password reset OTP is: {otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, please ignore this email.";
+        var emailSubject = "Your Onvora Password Reset Code";
+        var textBody = $"Your Onvora password reset OTP is: {otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, please ignore this email.";
         var htmlBody = $@"
 <!DOCTYPE html>
 <html>
@@ -121,7 +121,7 @@ public class AuthController : ControllerBase
 <body>
   <div class='wrapper'>
     <div class='header'>
-      <h1>OnBoardly</h1>
+      <h1>Onvora</h1>
       <p>Password Reset Request</p>
     </div>
     <div class='body'>
@@ -132,7 +132,7 @@ public class AuthController : ControllerBase
       </div>
       <p style='font-size:13px; color:#6b7280;'>If you didn't request a password reset, you can safely ignore this email. Your account remains secure.</p>
     </div>
-    <div class='footer'>OnBoardly · Sent to {request.Email}</div>
+    <div class='footer'>Onvora · Sent to {request.Email}</div>
   </div>
 </body>
 </html>";
@@ -174,9 +174,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         // Enforce strong password requirements
-        if (string.IsNullOrWhiteSpace(request.NewPassword) || 
-            request.NewPassword.Length < 8 || 
-            !request.NewPassword.Any(char.IsDigit) || 
+        if (string.IsNullOrWhiteSpace(request.NewPassword) ||
+            request.NewPassword.Length < 8 ||
+            !request.NewPassword.Any(char.IsDigit) ||
             !request.NewPassword.Any(char.IsLetter))
         {
             return BadRequest(new { message = "Password must be at least 8 characters long and contain both letters and numbers." });
@@ -265,12 +265,12 @@ public class AuthController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(new 
-        { 
-            message = "Profile updated", 
-            agencyName = agency.Name, 
+        return Ok(new
+        {
+            message = "Profile updated",
+            agencyName = agency.Name,
             logoUrl = agency.LogoUrl,
-            brandColor = agency.BrandColor 
+            brandColor = agency.BrandColor
         });
     }
 }

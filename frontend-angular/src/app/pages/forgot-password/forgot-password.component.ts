@@ -19,9 +19,8 @@ import { getErrorMessage } from '../../utils/error-handler';
              style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
 
         <div class="relative z-10 flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl flex items-center justify-center font-bold text-white text-xl shadow-lg"
-               style="background: rgba(255,255,255,0.2);">O</div>
-          <span class="font-bold tracking-tight text-xl">OnBoardly</span>
+          <img src="logo.png" alt="Logo" class="h-10 w-10 object-contain rounded-xl shadow-lg bg-white p-1" />
+          <span class="font-bold tracking-tight text-xl">Onvora</span>
         </div>
 
         <div class="relative z-10 max-w-md">

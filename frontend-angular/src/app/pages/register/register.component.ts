@@ -17,13 +17,10 @@ import { getErrorMessage } from '../../utils/error-handler';
         <div class="absolute inset-0 bg-gradient-to-br from-blue-700 to-blue-900 opacity-90 z-0"></div>
         <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
         
-        <!-- OnBoardly Logo -->
+        <!-- Onvora Logo -->
         <div class="relative z-10 flex items-center gap-3">
-          <div class="h-10 w-10 rounded-xl flex items-center justify-center font-bold text-white text-xl shadow-lg"
-               style="background: linear-gradient(135deg, #1d4ed8, #7c3aed);">
-            O
-          </div>
-          <span class="font-bold tracking-tight text-xl">OnBoardly</span>
+          <img src="logo.png" alt="Logo" class="h-10 w-10 object-contain rounded-xl shadow-lg bg-white p-1" />
+          <span class="font-bold tracking-tight text-xl">Onvora</span>
         </div>
         
         <div class="relative z-10 max-w-md">
@@ -36,7 +33,7 @@ import { getErrorMessage } from '../../utils/error-handler';
               <img class="w-10 h-10 rounded-full border-2 border-blue-600" src="https://i.pravatar.cc/100?img=2" alt="User 2" />
               <div class="w-10 h-10 rounded-full border-2 border-blue-600 bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-bold">+2k</div>
             </div>
-            <div class="text-sm font-medium">Agencies trust OnBoardly to onboard clients</div>
+            <div class="text-sm font-medium">Agencies trust Onvora to onboard clients</div>
           </div>
         </div>
       </div>
@@ -141,14 +138,14 @@ export class RegisterComponent {
     if (this.form.invalid) return;
     this.loading = true;
     this.error = '';
-    
+
     try {
       await this.http.post(`${environment.apiUrl}/api/auth/register`, {
         name: this.f['name'].value,
         email: this.f['email'].value,
         password: this.f['password'].value
       }).toPromise();
-      
+
       this.success = true;
       setTimeout(() => this.router.navigate(['/login']), 2000);
     } catch (err: any) {

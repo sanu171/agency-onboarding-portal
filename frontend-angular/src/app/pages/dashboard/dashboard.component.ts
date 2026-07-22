@@ -18,8 +18,8 @@ import { filter } from 'rxjs/operators';
           <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 180px; font-weight: 700; font-size: 15px; color: var(--text-primary);">
             {{ auth.user()?.agencyName || 'Agency' }}
           </div>
-          <!-- OnBoardly brand label -->
-          <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">OnBoardly</p>
+          <!-- Onvora brand label -->
+          <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">Onvora</p>
         </div>
         
         <nav style="flex: 1; display: flex; flex-direction: column;">
@@ -121,7 +121,7 @@ export class DashboardComponent {
     borderRight: '1px solid var(--border)',
     height: '100vh',
     position: 'fixed' as const,
-    left: '0', 
+    left: '0',
     top: '0',
     display: 'flex',
     flexDirection: 'column' as const,
